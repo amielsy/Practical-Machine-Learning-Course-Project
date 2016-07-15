@@ -242,7 +242,7 @@ confusionMatrix(predrf, testing$classe)
 ## Detection Prevalence   0.2850   0.1932   0.1772   0.1608   0.1838
 ## Balanced Accuracy      0.9996   0.9969   0.9939   0.9888   1.0000
 ```
-The out of sample error is just 1-accuracy=0.59%, which is very good.
+The expected out of sample error is just 1-accuracy=0.59%, which is very good.
 
 ##Results
 

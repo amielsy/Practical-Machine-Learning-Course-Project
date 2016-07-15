@@ -93,7 +93,7 @@ Here, the best model (random forest) is used to predict the test set.
 predrf<- predict(modelrf, testing)
 confusionMatrix(predrf, testing$classe)
 ```
-The out of sample error is just 1-accuracy=0.59%, which is very good.
+The expected out of sample error is just 1-accuracy=0.59%, which is very good.
 
 ##Results
 
