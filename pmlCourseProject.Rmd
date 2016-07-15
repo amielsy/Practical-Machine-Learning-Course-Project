@@ -1,0 +1,103 @@
+---
+title: "Predicting the Correctness of an Exercise"
+author: "Amiel Sy"
+date: "July 16, 2016"
+output:  
+      html_document:  
+        keep_md: true  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Background
+
+In this project, the goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. There are 5 classifications of the exercise:  
+-doing the exercise correctly (class A)  
+-throwing the elbows to the front (Class B)  
+-lifting the dumbbell only halfway (Class C)  
+-lowering the dumbbell only halfway (Class D)  
+-throwing the hips to the front (Class E)  
+
+More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
+
+The dataset used in this report is from this publication:   
+Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. Wearable Computing: Accelerometers' Data Classification of Body Postures and Movements. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6. 
+
+##Dataset
+
+Please download the datasets and paste them in you working directory before running the code in this report for it to work.
+
+Datasets can be found here: ["http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"]
+["http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"]  
+Alternatively, datasets can be found from my Github: 
+
+All the variables of training and testing are the same except that testing does not have the classe variable and training does not have the problem_id variable. Our goal for this project is to make a predict class in the training file.
+
+##Data Processing
+
+First, csv files are read.
+
+```{r cache=TRUE}
+data = read.csv("pml-training.csv")
+submission = read.csv("pml-testing.csv")
+```
+
+Libraries are loaded.
+```{r}
+library(caret)
+library(randomForest)
+library(gbm)
+library(plyr)
+```
+Here, columns full of NAs from submission are removed. The first 7 columns are also removed since these variables like names, index, and dates has nothing to do with classe.
+
+```{r cache=TRUE}
+variables <- names(submission[,colSums(is.na(submission)) == 0])[8:59]
+data<-data[,c(variables, "classe")]
+submission<-submission[,c(variables, "problem_id")]
+```
+
+Next, the training and testing datasets are created from the data.
+```{r cache=TRUE}
+set.seed(100)
+inTrain = createDataPartition(data$classe, p = 0.8, list = FALSE)
+training = data[inTrain,]
+testing = data[-inTrain,]
+```
+
+##Machine Learning
+Here, the random forest algorithm is used. Preprocessing such as center, scaling, and PCA are not used since it does not appear to help in the prediction.
+
+Using the train method, we cross-validate using 4 folds. 
+```{r cache=TRUE}
+modelrf<-train(classe~., training, trControl=trainControl(method = "cv", number = 4), 
+               method="rf")
+modelrf
+```
+The cross-validation accuracy for the random forest algorithm is 99.19%.
+
+Next, we use the gbm(boosting) algorithm.
+
+```{r cache=TRUE}
+modelgbm<-train(classe~., training, trControl=trainControl(method = "cv", number = 4), 
+               method="gbm", verbose=FALSE)
+modelgbm
+```
+The cross-validation accuracy for the gbm algorithm is 96.12%
+
+Here, the best model (random forest) is used to predict the test set.
+
+```{r cache=TRUE}
+predrf<- predict(modelrf, testing)
+confusionMatrix(predrf, testing$classe)
+```
+The out of sample error is just 1-accuracy=0.59%, which is very good.
+
+##Results
+
+Now, we apply our final model to the submission dataframe to get the final result.
+```{r}
+predict(modelrf, submission)
+```
