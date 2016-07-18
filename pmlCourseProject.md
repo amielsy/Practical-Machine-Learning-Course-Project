@@ -1,4 +1,4 @@
-# Predicting the Correctness of an Exercise
+# Identifying the Classification of a Barbell Lift Through Accelerometer Data
 Amiel Sy  
 July 16, 2016  
 
@@ -24,9 +24,10 @@ Please download the datasets and paste them in you working directory before runn
 
 Datasets can be found here: ["http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"]
 ["http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"]  
-Alternatively, datasets can be found from my Github: 
 
-All the variables of training and testing are the same except that testing does not have the classe variable and training does not have the problem_id variable. Our goal for this project is to make a predict class in the training file.
+Alternatively, datasets can be found from my Github: https://github.com/amielsy/Practical-Machine-Learning-Course-Project
+
+All the variables of training and testing are the same except that testing does not have the classe variable and training does not have the problem_id variable. Our goal for this project is to predict classe in the training file.
 
 ##Data Processing
 
@@ -128,7 +129,7 @@ testing = data[-inTrain,]
 ```
 
 ##Machine Learning
-Here, the random forest algorithm is used. Preprocessing such as center, scaling, and PCA are not used since it does not appear to help in the prediction.
+Here, the random forest algorithm is used. Preprocessing such as center, scaling, and PCA are not used since it does not appear to help in the accuracy of the prediction.
 
 Using the train method, we cross-validate using 4 folds. 
 
@@ -242,7 +243,7 @@ confusionMatrix(predrf, testing$classe)
 ## Detection Prevalence   0.2850   0.1932   0.1772   0.1608   0.1838
 ## Balanced Accuracy      0.9996   0.9969   0.9939   0.9888   1.0000
 ```
-The expected out of sample error is just 1-accuracy=0.59%, which is very good.
+The out of sample error is just 1-accuracy=0.59%, which is very good.
 
 ##Results
 
